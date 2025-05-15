@@ -1,6 +1,7 @@
-tensorflow
-numpy
-matplotlib
-pillow
 streamlit
+tensorflow
+pandas
+numpy
+folium
+streamlit-folium
 gdown
