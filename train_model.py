@@ -104,7 +104,7 @@ checkpoint = ModelCheckpoint(
     verbose=1
 )
 
-# 🏋 Entrenamiento
+#  Entrenamiento
 model_history = custom_vgg_model.fit(
     train_generator,
     epochs=epochs,
