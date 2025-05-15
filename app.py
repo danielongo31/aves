@@ -8,16 +8,16 @@ from streamlit_folium import st_folium
 from tensorflow.keras.preprocessing.image import load_img, img_to_array
 from tensorflow.keras.applications.vgg16 import preprocess_input
 
-# Rutas
+# 📁 Rutas
 ruta_modelo = "models/mejor_modelo.keras"
 ruta_train = "dataset/train"
 ruta_csv = "avistamientos.csv"
 ruta_imagenes = "imagenes_guardadas"
 
-# Crear carpeta si no existe
+# 📂 Crear carpeta si no existe
 os.makedirs(ruta_imagenes, exist_ok=True)
 
-# Cargar modelo
+# 🧠 Cargar modelo
 @st.cache_resource
 def cargar_modelo():
     if not os.path.exists(ruta_modelo):
@@ -27,7 +27,7 @@ def cargar_modelo():
 
 model = cargar_modelo()
 
-# Cargar nombres de clases
+# 🐦 Cargar nombres de clases
 @st.cache_data
 def obtener_clases():
     clases = sorted([
@@ -41,7 +41,7 @@ def obtener_clases():
 
 clases = obtener_clases()
 
-# Interfaz
+# 🎨 Interfaz
 st.title("🕵️‍♂️ Clasificador de Aves del Tolima")
 st.write("Sube una imagen de un ave para predecir su especie y registrar su ubicación:")
 
@@ -104,7 +104,7 @@ if archivo:
         st.success("✅ Avistamiento registrado con éxito.")
         st.rerun()
 
-# Mostrar tabla con registros guardados
+# 📋 Mostrar tabla con registros guardados
 st.subheader("📊 Avistamientos registrados")
 
 if os.path.exists(ruta_csv):
