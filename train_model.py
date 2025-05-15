@@ -11,17 +11,17 @@ from tensorflow.keras.callbacks import LearningRateScheduler, EarlyStopping, Mod
 from tensorflow.keras.regularizers import l2
 from tensorflow.keras.applications.vgg16 import preprocess_input
 
-# 📁 Rutas del dataset
+#  Rutas del dataset
 train_data_dir = "dataset/train"
 validation_data_dir = "dataset/valid"
 
-# 🔧 Parámetros
+#  Parámetros
 width_shape, height_shape = 224, 224
 batch_size = 32
 num_classes = 20
 epochs = 40
 
-# 📈 Data augmentation (más agresivo)
+#  Data augmentation 
 train_datagen = ImageDataGenerator(
     rotation_range=30,
     zoom_range=0.3,
@@ -37,7 +37,7 @@ valid_datagen = ImageDataGenerator(
     preprocessing_function=preprocess_input
 )
 
-# 🖼️ Generadores de imágenes
+# 🖼 Generadores de imágenes
 train_generator = train_datagen.flow_from_directory(
     train_data_dir,
     target_size=(width_shape, height_shape),
@@ -52,35 +52,35 @@ validation_generator = valid_datagen.flow_from_directory(
     class_mode='categorical'
 )
 
-# 🔢 Número real de imágenes
+#  Número real de imágenes
 nb_train_samples = train_generator.samples
 nb_validation_samples = validation_generator.samples
 
-# 📥 Entrada del modelo
+#  Entrada del modelo
 image_input = Input(shape=(width_shape, height_shape, 3))
 
-# 🧠 Cargar modelo base VGG16
+#  Cargar modelo base VGG16
 base_model = VGG16(input_tensor=image_input, include_top=True, weights='imagenet')
 last_layer = base_model.get_layer('fc2').output
 
-# 🔚 Capa de salida personalizada
+#  Capa de salida personalizada
 out = Dense(num_classes, activation='softmax', kernel_regularizer=l2(0.01))(last_layer)
 custom_vgg_model = Model(inputs=image_input, outputs=out)
 
-# 🔓 Fine-tuning: descongelar últimas 6 capas
+#  Fine-tuning: descongelar últimas 6 capas
 for layer in custom_vgg_model.layers[:-6]:
     layer.trainable = False
 for layer in custom_vgg_model.layers[-6:]:
     layer.trainable = True
 
-# 🧪 Compilar modelo
+#  Compilar modelo
 custom_vgg_model.compile(
     loss='categorical_crossentropy',
     optimizer=Adam(learning_rate=0.0001),
     metrics=['accuracy']
 )
 
-# 🔁 Callbacks
+#  Callbacks
 def lr_schedule(epoch):
     initial_lr = 0.0001
     drop = 0.5
@@ -104,7 +104,7 @@ checkpoint = ModelCheckpoint(
     verbose=1
 )
 
-# 🏋️ Entrenamiento
+# 🏋 Entrenamiento
 model_history = custom_vgg_model.fit(
     train_generator,
     epochs=epochs,
@@ -114,5 +114,4 @@ model_history = custom_vgg_model.fit(
     callbacks=[lr_scheduler, early_stop, checkpoint]
 )
 
-# ✅ Confirmación
 print("✅ Entrenamiento finalizado. El mejor modelo fue guardado en: models/mejor_modelo.keras")
