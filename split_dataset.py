@@ -38,4 +38,4 @@ for clase in os.listdir(ruta_original):
 
         print(f"✅ {clase}: {len(imagenes_train)} train, {len(imagenes_valid)} valid")
 
-print("\n🎉 ¡Separación completada correctamente!")
+print("\n Separación completada correctamente")
