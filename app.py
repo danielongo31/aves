@@ -117,7 +117,13 @@ if archivo:
 st.subheader("Avistamientos registrados")
 
 if os.path.exists(ruta_csv):
+    # Si el archivo existe pero está vacío, escribe encabezados
+    if os.path.getsize(ruta_csv) == 0:
+        with open(ruta_csv, "w") as f:
+            f.write("archivo,clase_predicha,confianza,latitud,longitud\n")
+
     df = pd.read_csv(ruta_csv)
+
     if not df.empty:
         st.dataframe(df, use_container_width=True)
 
