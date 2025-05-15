@@ -4,20 +4,29 @@ import numpy as np
 import os
 import pandas as pd
 import folium
+import gdown
 from streamlit_folium import st_folium
 from tensorflow.keras.preprocessing.image import load_img, img_to_array
 from tensorflow.keras.applications.vgg16 import preprocess_input
 
-#  Rutas
+# Rutas
 ruta_modelo = "models/mejor_modelo.keras"
 ruta_train = "dataset/train"
 ruta_csv = "avistamientos.csv"
 ruta_imagenes = "imagenes_guardadas"
 
-#  Crear carpeta si no existe
+# Crear carpetas necesarias
+os.makedirs("models", exist_ok=True)
 os.makedirs(ruta_imagenes, exist_ok=True)
 
-#  Cargar modelo
+# Descargar el modelo desde Google Drive si no existe
+if not os.path.exists(ruta_modelo):
+    st.info("⬇️ Descargando modelo desde Google Drive...")
+    url = "https://drive.google.com/uc?id=190S03L4GGx1Lyx_bMBRpSE9fRVhGdxdd"
+    gdown.download(url, ruta_modelo, quiet=False)
+    st.success("✅ Modelo descargado con éxito.")
+
+# Cargar modelo
 @st.cache_resource
 def cargar_modelo():
     if not os.path.exists(ruta_modelo):
@@ -27,7 +36,7 @@ def cargar_modelo():
 
 model = cargar_modelo()
 
-#  Cargar nombres de clases
+# Cargar nombres de clases
 @st.cache_data
 def obtener_clases():
     clases = sorted([
@@ -41,7 +50,7 @@ def obtener_clases():
 
 clases = obtener_clases()
 
-#  Interfaz
+# Interfaz
 st.title("🕵️‍♂️ Clasificador de Aves del Tolima")
 st.write("Sube una imagen de un ave para predecir su especie y registrar su ubicación:")
 
@@ -74,7 +83,7 @@ if archivo:
         lon = st.number_input("Longitud", format="%.6f", value=-75.232222)
 
     # Mapa
-    st.write("🗺️ Ubicación del avistamiento")
+    st.write("Ubicación del avistamiento")
     mapa = folium.Map(location=[lat, lon], zoom_start=13)
     folium.Marker([lat, lon], popup=clase_predicha).add_to(mapa)
     st_folium(mapa, width=700, height=400)
@@ -85,7 +94,7 @@ if archivo:
         f.write(archivo.getbuffer())
 
     # Guardar en CSV
-    if st.button("💾 Guardar avistamiento"):
+    if st.button("Guardar avistamiento"):
         nuevo = {
             "archivo": archivo.name,
             "clase_predicha": clase_predicha,
@@ -104,8 +113,8 @@ if archivo:
         st.success("✅ Avistamiento registrado con éxito.")
         st.rerun()
 
-#  Mostrar tabla con registros guardados
-st.subheader("📊 Avistamientos registrados")
+# Mostrar tabla con registros guardados
+st.subheader("Avistamientos registrados")
 
 if os.path.exists(ruta_csv):
     df = pd.read_csv(ruta_csv)
@@ -113,12 +122,12 @@ if os.path.exists(ruta_csv):
         st.dataframe(df, use_container_width=True)
 
         # 🗑️ Eliminar registros
-        st.subheader("🗑️ Eliminar un avistamiento")
+        st.subheader("Eliminar un avistamiento")
 
         opciones = df["archivo"].tolist()
         seleccion = st.selectbox("Selecciona el archivo a eliminar:", opciones)
 
-        if st.button("❌ Eliminar registro seleccionado"):
+        if st.button("Eliminar registro seleccionado"):
             df_filtrado = df[df["archivo"] != seleccion]
 
             # Guardar el nuevo CSV sin el registro
@@ -129,9 +138,9 @@ if os.path.exists(ruta_csv):
             if os.path.exists(ruta_imagen):
                 os.remove(ruta_imagen)
 
-            st.success(f" Registro con archivo '{seleccion}' eliminado.")
+            st.success(f"✅ Registro con archivo '{seleccion}' eliminado.")
             st.rerun()
     else:
-        st.info(" No hay registros para mostrar.")
+        st.info("No hay registros para mostrar.")
 else:
-    st.info(" Aún no hay avistamientos registrados.")
+    st.info("Aún no hay avistamientos registrados.")
